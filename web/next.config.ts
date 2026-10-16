@@ -10,11 +10,14 @@ const nextConfig: NextConfig = {
   // of a phone remote: opening the LAN address serves the HTML but 403s every JS chunk, so
   // the page renders and none of the buttons do anything.
   //
-  // Development only — this setting has no effect on a production build. It is widened to
-  // the private ranges rather than one address so a DHCP lease change doesn't silently
-  // break it again. Narrow it to your own subnet if you don't want other devices reaching
-  // the dev server.
-  allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "172.16.*.*"],
+  // Setting this replaces the built-in allow-list rather than extending it, and the built-in
+  // one only covers `localhost`. Leaving 127.0.0.1 out means typing the numeric form of the
+  // same address gives you that same dead page, with no error to explain it.
+  //
+  // Development only — this setting has no effect on a production build. The private ranges
+  // are wildcards rather than one address so a DHCP lease change doesn't silently break it
+  // again. Narrow it to your own subnet if you don't want other devices reaching the dev server.
+  allowedDevOrigins: ["localhost", "127.0.0.1", "192.168.*.*", "10.*.*.*", "172.16.*.*"],
 
   async rewrites() {
     return [
