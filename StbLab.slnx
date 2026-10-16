@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/StbLab.Api/StbLab.Api.csproj" />
+    <Project Path="src/StbLab.Cli/StbLab.Cli.csproj" />
+    <Project Path="src/StbLab.Protocol/StbLab.Protocol.csproj" />
+  </Folder>
+</Solution>
