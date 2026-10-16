@@ -1,0 +1,28 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{cs,csx}]
+indent_style = space
+indent_size = 4
+
+[*.{ts,tsx,js,jsx,json,css,yml,yaml,proto}]
+indent_style = space
+indent_size = 2
+
+# Markdown uses two trailing spaces for a hard line break, so don't strip them.
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+# Explicit types everywhere. This project deliberately does not use `var`, and
+# these rules are errors rather than hints so a drive-by `var` fails the build
+# instead of quietly landing in review.
+csharp_style_var_for_built_in_types = false:error
+csharp_style_var_when_type_is_apparent = false:error
+csharp_style_var_elsewhere = false:error
+dotnet_diagnostic.IDE0008.severity = error
