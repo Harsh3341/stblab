@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.svg" width="128" height="128" alt="">
+  <img src="assets/logo.png" width="128" height="128" alt="">
   <h1>StbLab</h1>
   <p>
     Control an Android TV set-top box from your laptop — a from-scratch C# implementation of the
