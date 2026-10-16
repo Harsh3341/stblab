@@ -9,6 +9,10 @@
 
 ---
 
+<p align="center">
+  <img src="assets/screenshot.png" width="900" alt="The StbLab web remote: live device telemetry in the left column beside the key layout — navigation pad, volume and channel rockers, transport, and app shortcuts.">
+</p>
+
 A physical remote is a small infrared or Bluetooth keyboard. Everything it does is a key event, and
 everything a set-top box shows you — power state, foreground app, volume — is state the box already
 publishes over its own network protocol. This project speaks that protocol directly, so the remote can
