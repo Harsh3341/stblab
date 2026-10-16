@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="stblab-logo-title">
+  <title id="stblab-logo-title">StbLab</title>
+
+  <defs>
+    <linearGradient id="stblab-mark" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#4c8dff"/>
+      <stop offset="1" stop-color="#8b6cff"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="#0e1014"/>
+
+  <!-- Signal radiating from the remote: the protocol leaving the device. -->
+  <g fill="none" stroke="url(#stblab-mark)" stroke-linecap="round" stroke-width="20">
+    <path d="M312 60A104 104 0 0 1 416 164" opacity="0.35"/>
+    <path d="M312 92A72 72 0 0 1 384 164" opacity="0.65"/>
+    <path d="M312 124A40 40 0 0 1 352 164"/>
+  </g>
+
+  <!-- Remote body. -->
+  <rect x="96" y="148" width="160" height="304" rx="52" fill="none" stroke="url(#stblab-mark)" stroke-width="20"/>
+
+  <!-- Directional pad. -->
+  <circle cx="176" cy="240" r="38" fill="none" stroke="url(#stblab-mark)" stroke-width="16"/>
+  <circle cx="176" cy="240" r="13" fill="url(#stblab-mark)"/>
+
+  <!-- Secondary buttons. -->
+  <circle cx="152" cy="344" r="14" fill="url(#stblab-mark)"/>
+  <circle cx="200" cy="344" r="14" fill="#2b3140"/>
+  <rect x="148" y="388" width="56" height="14" rx="7" fill="#2b3140"/>
+</svg>
