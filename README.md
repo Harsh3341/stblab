@@ -212,6 +212,17 @@ cd web && npm install && npm run dev                             # http://localh
 The web app proxies `/api/*` to the API, so the browser only ever talks to one origin and there is no
 CORS to configure.
 
+**Using it from your phone.** The web app binds to every interface, so `http://<your-laptop-ip>:3000`
+works from any device on the same network — which is where a remote is actually useful. Two things to
+know:
+
+- Next.js blocks cross-origin requests to dev assets by default. That serves the page but 403s every
+  script, so the remote renders and none of the buttons do anything. `allowedDevOrigins` in
+  `web/next.config.ts` widens that to the private ranges; narrow it to your own subnet if you would
+  rather other devices could not reach the dev server.
+- The API itself stays on loopback. The phone talks to Next, and Next reaches the API from the same
+  machine, so the API is never exposed to the network.
+
 ## CLI
 
 ```

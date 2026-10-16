@@ -6,6 +6,16 @@ import type { NextConfig } from "next";
 const API_ORIGIN = process.env.STB_API_ORIGIN ?? "http://127.0.0.1:5080";
 
 const nextConfig: NextConfig = {
+  // Next blocks cross-origin requests to dev assets by default. That breaks the whole point
+  // of a phone remote: opening the LAN address serves the HTML but 403s every JS chunk, so
+  // the page renders and none of the buttons do anything.
+  //
+  // Development only — this setting has no effect on a production build. It is widened to
+  // the private ranges rather than one address so a DHCP lease change doesn't silently
+  // break it again. Narrow it to your own subnet if you don't want other devices reaching
+  // the dev server.
+  allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "172.16.*.*"],
+
   async rewrites() {
     return [
       {
