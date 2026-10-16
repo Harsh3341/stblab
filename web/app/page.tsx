@@ -213,44 +213,73 @@ export default function RemotePage() {
     onStopHold: stopHold,
   };
 
-  const powerLabel =
-    state?.isOn == null ? "unknown" : state.isOn ? "on" : "standby";
+  const powerLabel = state?.isOn == null ? "—" : state.isOn ? "on" : "standby";
 
   const volumeLabel = state?.volume
-    ? `${state.volume.level} / ${state.volume.max}${state.volume.muted ? " · muted" : ""}`
-    : "unknown";
+    ? `${state.volume.level}/${state.volume.max}${state.volume.muted ? " muted" : ""}`
+    : "—";
+
+  const modelLabel = state?.device
+    ? `${state.device.manufacturer} ${state.device.model}`
+    : "—";
 
   return (
-    <div className="shell">
-      <main className="remote">
-        <section className="status">
-          <div className="status-row">
-            <span className="status-key">Device</span>
-            <span className="status-value">
-              <span className="dot" data-state={connected ? "on" : "off"} />
-              {connected ? "connected" : "disconnected"}
-            </span>
-          </div>
-          <div className="status-row">
-            <span className="status-key">Power</span>
-            <span className="status-value">{powerLabel}</span>
-          </div>
-          <div className="status-row">
-            <span className="status-key">Volume</span>
-            <span className="status-value">{volumeLabel}</span>
-          </div>
-          <div className="status-row">
-            <span className="status-key">App</span>
-            <span className="status-value">{state?.currentApp ?? "unknown"}</span>
-          </div>
-          <div className="status-row">
-            <span className="status-key">Model</span>
-            <span className="status-value">
-              {state?.device
-                ? `${state.device.manufacturer} ${state.device.model}`
-                : "unknown"}
-            </span>
-          </div>
+    <div className="app">
+      <header className="bar">
+        <span className="brand">StbLab</span>
+        <span className="bar-sub">Android TV Remote v2</span>
+        <span className="bar-link">
+          <span className="led" data-state={connected ? "on" : "off"} />
+          {connected ? "linked" : "offline"}
+        </span>
+      </header>
+
+      <aside className="rail">
+        <section className="block">
+          <h2 className="block-title">Telemetry</h2>
+          <dl className="rows">
+            <dt>Power</dt>
+            <dd>{powerLabel}</dd>
+            <dt>Volume</dt>
+            <dd>{volumeLabel}</dd>
+            <dt>App</dt>
+            <dd title={state?.currentApp ?? undefined}>{state?.currentApp ?? "—"}</dd>
+            <dt>Device</dt>
+            <dd title={modelLabel === "—" ? undefined : modelLabel}>{modelLabel}</dd>
+          </dl>
+        </section>
+
+        {state?.features.length ? (
+          <section className="block">
+            <h2 className="block-title">Negotiated features</h2>
+            <ul className="tags">
+              {state.features.map((feature) => (
+                <li key={feature}>{feature.toLowerCase()}</li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        <section className="block">
+          <h2 className="block-title">Text input</h2>
+          <form
+            className="field-row"
+            onSubmit={(event) => {
+              event.preventDefault();
+              run(() => sendText(text), () => setText(""));
+            }}
+          >
+            <input
+              type="text"
+              placeholder="focused field"
+              value={text}
+              onChange={(event) => setText(event.target.value)}
+            />
+            <button type="submit" className="key key-inline" disabled={text === "" || !connected}>
+              Send
+            </button>
+          </form>
+          <p className="hint">Types into whatever has focus on the device.</p>
         </section>
 
         {actionError ?? linkError ? (
@@ -272,59 +301,65 @@ export default function RemotePage() {
         {!connected && !linkError ? (
           <div className="banner banner-warn">
             <span>
-              No live session. The box may be off, asleep, or already held by another remote —
-              the API redials every few seconds.
+              No live session. The box may be off, asleep, or already held by another remote — the
+              API redials every few seconds.
             </span>
           </div>
         ) : null}
+      </aside>
 
-        <section className="card">
-          <h2 className="card-title">Power</h2>
-          <div className="grid cols-3">
-            <RemoteKey label="⏻" keyName="POWER" className="key-power" title="Power" {...keyProps} />
-            <RemoteKey label="🔇" keyName="VOLUME_MUTE" className="key-mute" title="Mute" {...keyProps} />
-            <RemoteKey label="Input" keyName="TV_INPUT" {...keyProps} />
+      <main className="deck">
+        <section className="block span-7">
+          <h2 className="block-title">Navigate</h2>
+          <div className="nav-body">
+            <div className="dpad">
+              <span />
+              <RemoteKey label="▲" keyName="DPAD_UP" {...keyProps} />
+              <span />
+              <RemoteKey label="◀" keyName="DPAD_LEFT" {...keyProps} />
+              <RemoteKey label="OK" keyName="DPAD_CENTER" className="key-primary" {...keyProps} />
+              <RemoteKey label="▶" keyName="DPAD_RIGHT" {...keyProps} />
+              <span />
+              <RemoteKey label="▼" keyName="DPAD_DOWN" {...keyProps} />
+              <span />
+            </div>
+            <div className="grid cols-2">
+              <RemoteKey label="Back" keyName="BACK" {...keyProps} />
+              <RemoteKey label="Home" keyName="HOME" {...keyProps} />
+              <RemoteKey label="Search" keyName="SEARCH" {...keyProps} />
+              <RemoteKey label="Settings" keyName="SETTINGS" {...keyProps} />
+            </div>
           </div>
         </section>
 
-        <section className="card">
-          <h2 className="card-title">Navigate</h2>
-          <div className="dpad">
-            <span />
-            <RemoteKey label="▲" keyName="DPAD_UP" {...keyProps} />
-            <span />
-            <RemoteKey label="◀" keyName="DPAD_LEFT" {...keyProps} />
-            <RemoteKey label="OK" keyName="DPAD_CENTER" className="ok" {...keyProps} />
-            <RemoteKey label="▶" keyName="DPAD_RIGHT" {...keyProps} />
-            <span />
-            <RemoteKey label="▼" keyName="DPAD_DOWN" {...keyProps} />
-            <span />
-          </div>
-          <div className="grid cols-4 stacked">
-            <RemoteKey label="Back" keyName="BACK" {...keyProps} />
-            <RemoteKey label="Home" keyName="HOME" {...keyProps} />
-            <RemoteKey label="Search" keyName="SEARCH" {...keyProps} />
-            <RemoteKey label="Settings" keyName="SETTINGS" {...keyProps} />
-          </div>
-        </section>
+        <div className="stack span-5">
+          <section className="block">
+            <h2 className="block-title">Volume &amp; channel</h2>
+            <div className="grid cols-4">
+              <RemoteKey label="Vol +" keyName="VOLUME_UP" repeat {...keyProps} />
+              <RemoteKey label="Vol −" keyName="VOLUME_DOWN" repeat {...keyProps} />
+              <RemoteKey label="Ch +" keyName="CHANNEL_UP" repeat {...keyProps} />
+              <RemoteKey label="Ch −" keyName="CHANNEL_DOWN" repeat {...keyProps} />
+            </div>
+          </section>
 
-        <section className="card">
-          <h2 className="card-title">Volume &amp; channel</h2>
+          <section className="block">
+            <h2 className="block-title">System</h2>
+            <div className="grid cols-3">
+              <RemoteKey label="Power" keyName="POWER" {...keyProps} />
+              <RemoteKey label="Mute" keyName="VOLUME_MUTE" {...keyProps} />
+              <RemoteKey label="Input" keyName="TV_INPUT" {...keyProps} />
+            </div>
+          </section>
+        </div>
+
+        <section className="block span-7">
+          <h2 className="block-title">Transport</h2>
           <div className="grid cols-4">
-            <RemoteKey label="Vol +" keyName="VOLUME_UP" repeat {...keyProps} />
-            <RemoteKey label="Vol −" keyName="VOLUME_DOWN" repeat {...keyProps} />
-            <RemoteKey label="Ch +" keyName="CHANNEL_UP" repeat {...keyProps} />
-            <RemoteKey label="Ch −" keyName="CHANNEL_DOWN" repeat {...keyProps} />
-          </div>
-        </section>
-
-        <section className="card">
-          <h2 className="card-title">Playback</h2>
-          <div className="grid cols-4">
-            <RemoteKey label="⏮" keyName="MEDIA_PREVIOUS" {...keyProps} />
-            <RemoteKey label="◀◀" keyName="MEDIA_REWIND" repeat {...keyProps} />
-            <RemoteKey label="▶▶" keyName="MEDIA_FAST_FORWARD" repeat {...keyProps} />
-            <RemoteKey label="⏭" keyName="MEDIA_NEXT" {...keyProps} />
+            <RemoteKey label="Prev" keyName="MEDIA_PREVIOUS" {...keyProps} />
+            <RemoteKey label="Rewind" keyName="MEDIA_REWIND" repeat {...keyProps} />
+            <RemoteKey label="Forward" keyName="MEDIA_FAST_FORWARD" repeat {...keyProps} />
+            <RemoteKey label="Next" keyName="MEDIA_NEXT" {...keyProps} />
             <RemoteKey label="Play/Pause" keyName="MEDIA_PLAY_PAUSE" {...keyProps} />
             <RemoteKey label="Stop" keyName="MEDIA_STOP" {...keyProps} />
             <RemoteKey label="Info" keyName="INFO" {...keyProps} />
@@ -332,8 +367,8 @@ export default function RemotePage() {
           </div>
         </section>
 
-        <section className="card">
-          <h2 className="card-title">Apps</h2>
+        <section className="block span-5">
+          <h2 className="block-title">Launch</h2>
           <div className="grid cols-3">
             {COMMON_APPS.map((entry) => (
               <button
@@ -357,53 +392,24 @@ export default function RemotePage() {
           >
             <input
               type="text"
-              placeholder="or any package / link"
+              placeholder="package or deep link"
               value={app}
               onChange={(event) => setApp(event.target.value)}
             />
             <button type="submit" className="key key-inline" disabled={app.trim() === "" || !connected}>
-              Launch
-            </button>
-          </form>
-          <p className="hint">
-            Launching is fire-and-forget: a package that is not installed does nothing, and the
-            device never says so. Watch the App row above to see what actually happened.
-          </p>
-        </section>
-
-        <section className="card">
-          <h2 className="card-title">Keyboard → device</h2>
-          <form
-            className="field-row"
-            onSubmit={(event) => {
-              event.preventDefault();
-              run(() => sendText(text), () => setText(""));
-            }}
-          >
-            <input
-              type="text"
-              placeholder="type into the focused field"
-              value={text}
-              onChange={(event) => setText(event.target.value)}
-            />
-            <button type="submit" className="key key-inline" disabled={text === "" || !connected}>
-              Send
+              Open
             </button>
           </form>
         </section>
 
-        <section className="card">
-          <h2 className="card-title">Shortcuts</h2>
+        <section className="block span-12">
+          <h2 className="block-title">Shortcuts</h2>
           <p className="hint">
             <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> navigate · <kbd>Enter</kbd> OK ·{" "}
             <kbd>Backspace</kbd> back · <kbd>Space</kbd> play/pause · <kbd>M</kbd> mute ·{" "}
-            <kbd>P</kbd> power · <kbd>+</kbd> <kbd>−</kbd> volume
+            <kbd>P</kbd> power · <kbd>+</kbd> <kbd>−</kbd> volume · launching is fire-and-forget:
+            the device never acknowledges it, so watch the App row above.
           </p>
-          {state?.features.length ? (
-            <p className="hint">
-              Device negotiated: {state.features.join(", ").toLowerCase()}
-            </p>
-          ) : null}
         </section>
       </main>
     </div>

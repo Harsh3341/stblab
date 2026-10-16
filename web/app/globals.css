@@ -1,17 +1,23 @@
 :root {
-  --bg: #0e1014;
-  --panel: #171a21;
-  --panel-2: #1e222b;
-  --panel-3: #252a35;
-  --line: #2b3140;
-  --line-bright: #3a4254;
-  --text: #e8ebf1;
-  --dim: #8b93a5;
-  --accent: #4c8dff;
-  --accent-dim: #3d7ae8;
+  --bg: #0b0b0c;
+  --surface: #131316;
+  --raise: #1a1a1e;
+  --raise-2: #202027;
+  --border: #2a2a31;
+  --border-2: #3a3a44;
+  --text: #ededf0;
+  --muted: #85858f;
+  --faint: #5d5d67;
+
+  /* Colour carries meaning here and nothing else: amber is the primary action,
+     green is the device link, red is a broken one. */
+  --accent: #e8a33d;
+  --accent-line: #6b5426;
+  --link: #4ac26b;
   --danger: #e5484d;
-  --ok: #30a46c;
-  --warn: #f5a524;
+
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 * {
@@ -27,228 +33,312 @@ body {
 body {
   background: var(--bg);
   color: var(--text);
-  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 14px/1.5 var(--sans);
   -webkit-font-smoothing: antialiased;
 }
 
-.shell {
-  min-height: 100dvh;
-  display: flex;
-  justify-content: center;
-  padding: 20px 14px 48px;
+/* ---------- frame ---------- */
+
+.app {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-areas:
+    "bar bar"
+    "rail deck";
+  gap: 14px;
+  align-items: start;
 }
 
-.remote {
-  width: 100%;
-  max-width: 420px;
+.bar {
+  grid-area: bar;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 2px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font: 600 13px/1 var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.bar-sub {
+  font: 400 11px/1 var(--mono);
+  color: var(--faint);
+  letter-spacing: 0.04em;
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
+}
+
+.bar-link {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.rail {
+  grid-area: rail;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-/* ---------- status ---------- */
+.deck {
+  grid-area: deck;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
 
-.status {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 12px 14px;
+.span-3 { grid-column: span 3; }
+.span-5 { grid-column: span 5; }
+.span-6 { grid-column: span 6; }
+.span-7 { grid-column: span 7; }
+.span-12 { grid-column: span 12; }
+
+/* A column of blocks that has to sit in one deck cell. */
+.stack {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  font-size: 13px;
+  gap: 14px;
 }
 
-.status-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: baseline;
+/* ---------- blocks ---------- */
+
+.block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px;
 }
 
-.status-key {
-  color: var(--dim);
-  flex: none;
+.block-title {
+  font: 600 10px/1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 0 0 11px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--border);
 }
 
-.status-value {
+/* ---------- telemetry ---------- */
+
+.rows {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 7px 12px;
+  margin: 0;
+}
+
+.rows dt {
+  font: 500 10px/1.7 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.rows dd {
+  margin: 0;
   text-align: right;
-  word-break: break-all;
+  font: 400 11px/1.5 var(--mono);
   font-variant-numeric: tabular-nums;
+  /* Package names are long. Truncate rather than wrap: a ragged second line in a
+     right-aligned panel reads as a bug. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.dot {
+.led {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--dim);
+  background: var(--faint);
   margin-right: 6px;
   vertical-align: 1px;
 }
 
-.dot[data-state="on"] {
-  background: var(--ok);
-  box-shadow: 0 0 0 3px rgb(48 164 108 / 15%);
+.led[data-state="on"] { background: var(--link); }
+.led[data-state="off"] { background: var(--danger); }
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.dot[data-state="off"] {
-  background: var(--danger);
-  box-shadow: 0 0 0 3px rgb(229 72 77 / 15%);
+.tags li {
+  font: 500 10px/1 var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 4px 6px;
 }
 
-/* ---------- cards ---------- */
-
-.card {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 14px;
-}
-
-.card-title {
-  color: var(--dim);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  margin: 0 0 10px;
-  font-weight: 600;
-}
+/* ---------- keys ---------- */
 
 .grid {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
-.cols-2 { grid-template-columns: repeat(2, 1fr); }
-.cols-3 { grid-template-columns: repeat(3, 1fr); }
-.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
-/* For a grid that follows another element inside the same card. */
-.stacked { margin-top: 8px; }
-
-/* ---------- buttons ---------- */
+/* For a grid that follows another element inside the same block. */
+.stacked { margin-top: 6px; }
 
 .key {
-  width: 100%;
-  padding: 13px 8px;
-  border-radius: 10px;
-  cursor: pointer;
-  background: var(--panel-2);
+  height: 42px;
+  padding: 0 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: var(--raise);
   color: var(--text);
-  border: 1px solid var(--line);
-  font: inherit;
-  font-size: 14px;
-  line-height: 1.2;
-  transition: background 0.08s, border-color 0.08s, transform 0.05s;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.07s, border-color 0.07s, color 0.07s;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .key:hover:not(:disabled) {
-  background: var(--panel-3);
-  border-color: var(--line-bright);
+  background: var(--raise-2);
+  border-color: var(--border-2);
 }
 
+/* Lit up, like a button on a physical panel. */
 .key:active:not(:disabled),
 .key[data-flash="true"] {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-  transform: translateY(1px);
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
 }
 
 .key:disabled {
-  opacity: 0.45;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
-.key-power { color: #ff9ea1; }
-.key-power:hover:not(:disabled) { background: #33202a; }
+/* The one primary action in the layout. */
+.key-primary {
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
 
-.key-mute { color: #ffd48a; }
-.key-mute:hover:not(:disabled) { background: #332b1e; }
+.key-primary:hover:not(:disabled) {
+  background: #241d10;
+  border-color: var(--accent-line);
+}
+
+.key-primary:active:not(:disabled),
+.key-primary[data-flash="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
 
 /* Sits in the auto column of a .field-row, so it must not stretch to fill. */
 .key-inline {
   width: auto;
-  padding: 13px 18px;
+  padding: 0 14px;
 }
 
-/* ---------- d-pad ---------- */
+/* ---------- navigation pad ---------- */
+
+.nav-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
 
 .dpad {
   display: grid;
-  grid-template-columns: repeat(3, 62px);
-  grid-template-rows: repeat(3, 50px);
-  gap: 8px;
-  justify-content: center;
+  grid-template-columns: repeat(3, 54px);
+  grid-template-rows: repeat(3, 42px);
+  gap: 6px;
 }
 
 .dpad .key {
   padding: 0;
-  font-size: 16px;
+  font-size: 13px;
 }
-
-.dpad .ok {
-  border-radius: 50%;
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.dpad .ok:hover:not(:disabled) { background: var(--accent-dim); }
 
 /* ---------- forms ---------- */
 
 .field-row {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
 }
 
 input[type="text"] {
   width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  background: var(--panel-2);
-  border: 1px solid var(--line);
+  height: 42px;
+  padding: 0 11px;
+  border-radius: 3px;
+  background: var(--raise);
+  border: 1px solid var(--border);
   color: var(--text);
-  font: inherit;
+  font: 400 12px/1 var(--mono);
 }
 
-input[type="text"]::placeholder { color: var(--dim); }
+input[type="text"]::placeholder {
+  color: var(--faint);
+}
 
 input[type="text"]:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: -1px;
+  outline: none;
+  border-color: var(--border-2);
+  background: var(--raise-2);
 }
 
 /* ---------- banners ---------- */
 
 .banner {
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 13px;
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  border: 1px solid transparent;
+  gap: 10px;
+  padding: 10px 11px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  font: 400 12px/1.5 var(--sans);
 }
 
 .banner-error {
-  background: rgb(229 72 77 / 12%);
-  border-color: rgb(229 72 77 / 35%);
-  color: #ffb4b6;
+  border-left-color: var(--danger);
+  color: #f0b3b5;
 }
 
 .banner-warn {
-  background: rgb(245 165 36 / 12%);
-  border-color: rgb(245 165 36 / 35%);
-  color: #ffd79a;
+  border-left-color: var(--accent);
+  color: #e3cd9f;
 }
 
 .banner button {
@@ -257,9 +347,9 @@ input[type="text"]:focus {
   border: none;
   color: inherit;
   cursor: pointer;
-  font: inherit;
-  opacity: 0.7;
-  padding: 0 2px;
+  font: 400 13px/1 var(--mono);
+  opacity: 0.6;
+  padding: 2px 3px;
 }
 
 .banner button:hover { opacity: 1; }
@@ -267,16 +357,67 @@ input[type="text"]:focus {
 /* ---------- hints ---------- */
 
 .hint {
-  color: var(--dim);
-  font-size: 12px;
-  line-height: 1.9;
+  margin: 10px 0 0;
+  color: var(--faint);
+  font: 400 11px/1.7 var(--mono);
+  letter-spacing: 0.02em;
 }
 
 kbd {
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 5px;
+  background: var(--raise);
+  border: 1px solid var(--border);
+  border-radius: 2px;
   padding: 1px 5px;
-  font-size: 11px;
-  font-family: ui-monospace, SFMono-Regular, monospace;
+  font: 400 10px/1.4 var(--mono);
+  color: var(--muted);
+}
+
+/* ---------- narrow screens ---------- */
+
+/* The keys come first once this is being used as a phone remote: the header
+   already reports the link, so telemetry is a scroll away rather than a
+   barrier in front of the d-pad. */
+@media (max-width: 880px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "bar"
+      "deck"
+      "rail";
+    padding: 14px 12px calc(20px + env(safe-area-inset-bottom));
+    gap: 12px;
+  }
+
+  .deck > .block,
+  .deck > .stack {
+    grid-column: span 12;
+  }
+
+  .nav-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dpad {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(3, 48px);
+    justify-self: center;
+    width: min(100%, 240px);
+  }
+}
+
+@media (max-width: 560px) {
+  .bar-sub {
+    display: none;
+  }
+
+  /* Touch targets, and a size that keeps "Play/Pause" legible inside a quarter column. */
+  .key {
+    height: 46px;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+
+  input[type="text"] {
+    height: 46px;
+  }
 }
